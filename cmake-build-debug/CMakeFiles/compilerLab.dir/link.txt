@@ -1,1 +1,0 @@
-/usr/bin/cc -g  -rdynamic CMakeFiles/compilerLab.dir/Lab1/main.c.o  -o compilerLab 
