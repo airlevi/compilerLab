@@ -4,10 +4,10 @@
 #define LEN_TOKEN_L 10
 void Block();
 void BlockItems();
+void Exp();
+void AddExp();
 void error_p(char *s);
 extern char *yytext;
-// short indexList = -1;
-// TokenType cur_token_list[LEN_TOKEN_L];
 void advance() 
 {
     cur_token.token = yylex();

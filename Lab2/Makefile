@@ -10,7 +10,7 @@ OBJECTS = $(O_PATH)/rd_check.o
 OBJECTS += $(O_PATH)/lex.yy.o
 
 TARGET = ./testDemo
-CFLAGS = -Wall
+CFLAGS = -Wall -g
 LIBS   = -lfl
  
 TARGET: $(OBJECTS)  #make命令默认执行第一个target及其依赖项
