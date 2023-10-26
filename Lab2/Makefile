@@ -14,7 +14,7 @@ CFLAGS = -Wall
 LIBS   = -lfl
  
 TARGET: $(OBJECTS)  #make命令默认执行第一个target及其依赖项
-		$(CC) -o $(TARGET) $(OBJECTS) $(LIBS) $(CFLAGS)
+		$(CC) -g -o $(TARGET) $(OBJECTS) $(LIBS) $(CFLAGS)
 		@$(ECHO) compiling is finished!
  
 #.c.o :   一种旧格式写法

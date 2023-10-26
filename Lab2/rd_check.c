@@ -5,6 +5,8 @@
 void Block();
 void BlockItems();
 void error_p(char *s);
+void Exp();
+void AddExp();
 extern char *yytext;
 // short indexList = -1;
 // TokenType cur_token_list[LEN_TOKEN_L];
@@ -32,6 +34,7 @@ void Block()
         {
             return;
         }else{
+            printf("in Block \n");
             BlockItems();
         }
         return;
@@ -95,11 +98,31 @@ void LOrExp(){
     }
     return;
 }
+void PrimaryExp(){
+    if(cur_token.token == Y_LPAR){
+        advance();
+        Exp();
+        if(cur_token.token != Y_RPAR) error_p("PrimaryExp err 1 Y_RPAR");
+        advance();
+    }
+    else if(cur_token.token == Y_ID){
+        advance();
+        if(cur_token.token == Y_LSQUARE){
+            rd_array_subscripts();
+        }
+    }
+    else if(cur_token.token == num_INT || cur_token.token == num_FLOAT){
+        advance();
+    }
+}
 
 void UnaryExp(){
     if(cur_token.token == Y_ID){
         advance();
-        if(cur_token.token != Y_LPAR) error_p("UnaryExp 2 3 Y_LPAR");
+        if(cur_token.token != Y_LPAR) {
+            PrimaryExp();
+            return;
+        }
         advance();
         if(cur_token.token != Y_RPAR){
             rd_call_paras();
@@ -111,6 +134,9 @@ void UnaryExp(){
     else if(cur_token.token == Y_ADD || cur_token.token == Y_SUB || cur_token.token == Y_NOT){
         advance();
         UnaryExp();
+        return;
+    }else{
+        PrimaryExp();
         return;
     }
 }
@@ -224,7 +250,17 @@ void Stmt(){
 }
 void BlockItems()
 {
-   Stmt();
+   while (cur_token.token == Y_ID || cur_token.token == Y_SEMICOLON
+   || cur_token.token == Y_WHILE|| cur_token.token == Y_IF || cur_token.token == Y_BREAK
+   || cur_token.token == Y_CONTINUE || cur_token.token == Y_RETURN || cur_token.token == Y_LBRACKET 
+   || cur_token.token == Y_ADD || cur_token.token == Y_SUB || cur_token.token == Y_NOT
+   || cur_token.token == Y_LPAR || cur_token.token == num_INT || cur_token.token == num_FLOAT
+   )
+   {
+    Stmt();
+    printf("cur token in BlcokItems %d\n",cur_token.token);
+   }
+   
 }
 void error_p(char *s)
 {

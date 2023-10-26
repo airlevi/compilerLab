@@ -1,5 +1,4 @@
-int main(){
-    int a = 0x0b;
-    int b = -10;
-    return 3;
+{
+    a = b+3;
+    c = a[2][1];
 }
