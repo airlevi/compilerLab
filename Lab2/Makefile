@@ -6,7 +6,7 @@ MID = lex.yy.c
 LEXFILE = sysy_lex.l
 # SUBDIR := $(shell pwd)
 O_PATH := ./obj
-OBJECTS = $(O_PATH)/rd_check.o
+OBJECTS = $(O_PATH)/complete.o
 OBJECTS += $(O_PATH)/lex.yy.o
 
 TARGET = ./testDemo
