@@ -10,7 +10,7 @@ OBJECTS = $(O_PATH)/complete.o
 OBJECTS += $(O_PATH)/lex.yy.o
 
 TARGET = ./testDemo
-CFLAGS = -Wall
+CFLAGS = -Wall -g
 LIBS   = -lfl
  
 TARGET: $(OBJECTS)  #make命令默认执行第一个target及其依赖项
@@ -19,7 +19,7 @@ TARGET: $(OBJECTS)  #make命令默认执行第一个target及其依赖项
  
 #.c.o :   一种旧格式写法
 $(O_PATH)/%.o : %.c#这一步是将所有的.c文件编译成.o文件，不链接
-				$(CC) -o $@ -c $< 
+				$(CC) -g -o $@ -c $< 
  
 #.l.c :
 $(MID) :$(LEXFILE)
