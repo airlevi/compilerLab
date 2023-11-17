@@ -1,4 +1,1 @@
-{
-    a = b+ 10;
-    c = 2+a;
-}
+while(a>b) if(a<10) a+3; else c=b+2;
