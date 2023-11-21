@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 int main(){
     int a=0,b=0;
     if(a+10 < b){
@@ -9,3 +10,6 @@ int main(){
         a = c+b;
     }
 }
+=======
+while(a>b) if(a<10) a+3; else c=b+2;
+>>>>>>> f1d3d8ebfe53128e7e012d0796206d7bf0e8233f

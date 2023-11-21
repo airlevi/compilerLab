@@ -1,7 +1,7 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-#include "token.h"	
+#include "rdlab2.h"	
 void norProc(enum yytokentype type,char * content);
 TokenType cur_token;
 %}

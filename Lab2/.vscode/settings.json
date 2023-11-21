@@ -2,6 +2,7 @@
     "C_Cpp.default.configurationProvider": "ms-vscode.makefile-tools",
     "files.associations": {
         "token.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "rdlab2.h": "c"
     }
 }
