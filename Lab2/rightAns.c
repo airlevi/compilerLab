@@ -21,29 +21,29 @@ past astLOrExp();
 past astLAndExp();
 past astEqExp();
 
-void Block();
-void BlockItems();
-void error_p(char *s);
-void Exp();
-void AddExp();
+// void Block();
+// void BlockItems();
+// void error_p(char *s);
+// void Exp();
+// void AddExp();
 
-// short indexList = -1;
-// TokenType cur_token_list[LEN_TOKEN_L];
-void advance()
-{
-    cur_token.token = yylex();
-    printf("cur_token.token: %d\n", cur_token.token);
-    printf("cur_token.attr.ivalue: %d\n", cur_token.attr.ivalue);
-    printf("cur_token.attr.fvalue: %f\n", cur_token.attr.fvalue);
-    printf("cur_token.attr.svalue: %s\n", cur_token.attr.svalue);
-}
-int main(int argc, char *argv[])
-{
-    advance();
-    // 开始识别Block，定义再sysy.y里面的
-    Block();
-    return 0;
-}
+// // short indexList = -1;
+// // TokenType cur_token_list[LEN_TOKEN_L];
+// void advance()
+// {
+//     cur_token.token = yylex();
+//     printf("cur_token.token: %d\n", cur_token.token);
+//     printf("cur_token.attr.ivalue: %d\n", cur_token.attr.ivalue);
+//     printf("cur_token.attr.fvalue: %f\n", cur_token.attr.fvalue);
+//     printf("cur_token.attr.svalue: %s\n", cur_token.attr.svalue);
+// }
+// int main(int argc, char *argv[])
+// {
+//     advance();
+//     // 开始识别Block，定义再sysy.y里面的
+//     Block();
+//     return 0;
+// }
 
 past rd_call_paras()
 {
