@@ -501,11 +501,7 @@ char *yytext;
 #line 2 "sysy_lex.l"
 #include <stdio.h>
 #include <stdlib.h>
-<<<<<<< HEAD
-#include "token.h"	
-=======
 #include "rdlab2.h"	
->>>>>>> f1d3d8ebfe53128e7e012d0796206d7bf0e8233f
 void norProc(enum yytokentype type,char * content);
 TokenType cur_token;
 #line 508 "lex.yy.c"

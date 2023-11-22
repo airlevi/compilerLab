@@ -30,7 +30,6 @@ past rd_stmt();
 past rd_array_subscripts();
 past rd_block();
 
-<<<<<<< HEAD
 // void Block();
 // void BlockItems();
 // void error_p(char *s);
@@ -54,7 +53,6 @@ past rd_block();
 //     Block();
 //     return 0;
 // }
-=======
 void Block();
 void BlockItems();
 void error_p(char* s);
@@ -79,37 +77,36 @@ past newInt(int value){
     t->ivalue = value;
     t->nodeType = INTEGER_LITERAL;
 }
->>>>>>> f1d3d8ebfe53128e7e012d0796206d7bf0e8233f
 
-// void advance()
-// {
-//     cur_token.token = yylex();
-//     printf("cur_token.token: %d\n", cur_token.token);
-//     // printf("cur_token.attr.ivalue: %d\n", cur_token.attr.ivalue);
-//     // printf("cur_token.attr.fvalue: %f\n", cur_token.attr.fvalue);
-// }
+void advance()
+{
+    cur_token.token = yylex();
+    printf("cur_token.token: %d\n", cur_token.token);
+    // printf("cur_token.attr.ivalue: %d\n", cur_token.attr.ivalue);
+    // printf("cur_token.attr.fvalue: %f\n", cur_token.attr.fvalue);
+}
 
-// void printTree(past node) {
-//     if (node == NULL) return;
-//     printf("nodeType: %d\n", node->nodeType);
-//     printf("int value: %d\n", node->ivalue);
-//     printf("float value: %f\n", node->fvalue);
-//     if (node->nodeType == DECL_REF_EXPR) printf("string value: %s\n", node->svalue);
-//     printf("----------------\n");
-//     printTree(node->left);
-//     printTree(node->right);
-// }
+void printTree(past node) {
+    if (node == NULL) return;
+    printf("nodeType: %d\n", node->nodeType);
+    printf("int value: %d\n", node->ivalue);
+    printf("float value: %f\n", node->fvalue);
+    if (node->nodeType == DECL_REF_EXPR) printf("string value: %s\n", node->svalue);
+    printf("----------------\n");
+    printTree(node->left);
+    printTree(node->right);
+}
 
-// int main(int argc, char* argv[])
-// {
-//     advance();
-//     // 开始识别Stmt，定义再sysy.y里面的
-//     past node = rd_stmt();
-//     //打印树,按照中缀遍历的顺序打印
-//     if (node == NULL) printf("NULL\n");
-//     else printTree(node);
-//     return 0;
-// }
+int main(int argc, char* argv[])
+{
+    advance();
+    // 开始识别Stmt，定义再sysy.y里面的
+    past node = rd_stmt();
+    //打印树,按照中缀遍历的顺序打印
+    if (node == NULL) printf("NULL\n");
+    else printTree(node);
+    return 0;
+}
 
 past rd_call_paras()
 {
