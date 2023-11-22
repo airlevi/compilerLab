@@ -3,13 +3,16 @@ CC   = gcc
 FLEX = flex
 BISON = bison
  
-MID = lex.yy.c
-LEXFILE = sysy_lex.l
+MID = lex.yy.c y.tab.c y.tab.h y.output
+MID_LEX = lex.yy.c
+MID_BISON = y.tab.c
+MIDFILE = calc
+
 # SUBDIR := $(shell pwd)
 O_PATH := ./obj
-OBJECTS = $(O_PATH)/rightAns.o
+OBJECTS = $(O_PATH)/y.tab.o
 OBJECTS += $(O_PATH)/lex.yy.o
-OBJECTS += $(O_PATH)/y.tab.o
+# OBJECTS += $(O_PATH)/rightAns.o
 
 TARGET = ./testDemo
 CFLAGS = -Wall -g
@@ -25,10 +28,11 @@ $(O_PATH)/%.o : %.c#这一步是将所有的.c文件编译成.o文件，不链�
 
  
 #.l.c :
-$(MID) :$(LEXFILE)
+$(MID_LEX) :$(MIDFILE).l
 		$(FLEX) -o $@  $<
 		
-
+$(MID_BISON):$(MIDFILE).y
+		$(BISON) -vdty $<
  
 clean:#make clean执行非第一个target子程序的clean target
 	  @$(ECHO) cleaning......
