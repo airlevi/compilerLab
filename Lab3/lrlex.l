@@ -1,7 +1,7 @@
 %{
 #include <stdlib.h>
 #include "ast.h"
-#include "y.tab.h"
+#include "lrparser.tab.h"
 int type;
 
 %}
@@ -16,7 +16,7 @@ LETTER 	     [A-Za-z]
 
 (\/\/.*\n)|(\/\*.*\*\/)							{/* noaction */}
 {WS}   											{/* noaction */}
-\n 												{return *yytext;}
+\n 												{/* noaction */}
 {DIGIT}+	     								{yylval.int_value = atoi(yytext); return num_INT;}
 {DIGIT}+"."{DIGIT}+								{yylval.float_value = (float)atof(yytext); return num_FLOAT;}
 int												{type = Y_INT;return Y_INT;}
@@ -53,7 +53,6 @@ return											{return Y_RETURN;}
 "}"												{return Y_RBRACKET;}
 ","												{return Y_COMMA;}
 ";"												{return Y_SEMICOLON;}
-
 
 %%
 

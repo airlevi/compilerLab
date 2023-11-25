@@ -18,7 +18,6 @@ extern int type;
 	past		pAst;
 };
 
-
 %token <int_value> num_INT Y_INT Y_VOID  Y_CONST Y_IF Y_ELSE Y_WHILE Y_BREAK Y_CONTINUE Y_FLOAT Y_RETURN
 %token <int_value> Y_ADD Y_COMMA Y_DIV  Y_LPAR Y_SUB Y_LSQUARE Y_MODULO Y_MUL Y_NOT Y_RPAR Y_RSQUARE Y_RBRACKET
 %token <int_value> Y_LESS Y_LESSEQ Y_GREAT Y_GREATEQ Y_NOTEQ Y_EQ Y_AND Y_OR Y_ASSIGN Y_LBRACKET Y_SEMICOLON
@@ -33,7 +32,7 @@ extern int type;
 
 
 %%
-program: CompUnit '\n'{showAst("|", $1, 0,false); }
+program: CompUnit {showAst("|", $1, 0,false); }
           ;
 
 CompUnit: Decl CompUnit {past l = newCompUnit($1, NULL); l->right = $2; $$ = l;}

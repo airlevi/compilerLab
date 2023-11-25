@@ -3,15 +3,20 @@ CC   = gcc
 FLEX = flex
 BISON = bison
  
-MID = lex.yy.c y.tab.c y.tab.h y.output
-MID_LEX = lex.yy.c
-MID_BISON = y.tab.c
-MIDFILE = lrlex
+
+MID_LEX_C = lex.yy.c
+MIDFILE_LEX = lrlex
+MIDFILE_BISON = lrparser
+MID_BISON_C = $(MIDFILE_BISON).tab.c
+MID = $(MIDFILE_BISON).tab.h
+MID += $(MIDFILE_BISON).output
+MID += $(MID_BISON_C)
+MID += $(MID_LEX_C)
 
 # SUBDIR := $(shell pwd)
 O_PATH := ./obj
-OBJECTS = $(O_PATH)/y.tab.o
-OBJECTS += $(O_PATH)/lex.yy.o
+OBJECTS = $(O_PATH)/$(MID_BISON_C:.c=.o)
+OBJECTS += $(O_PATH)/$(MID_LEX_C:.c=.o)
 OBJECTS += $(O_PATH)/ast.o
 OBJECTS += $(O_PATH)/main.o
 # OBJECTS += $(O_PATH)/rightAns.o
@@ -30,11 +35,11 @@ $(O_PATH)/%.o : %.c#这一步是将所有的.c文件编译成.o文件，不链�
 
  
 #.l.c :
-$(MID_LEX) :$(MIDFILE).l
+$(MID_LEX_C) :$(MIDFILE_LEX).l
 		$(FLEX) -o $@  $<
 		
-$(MID_BISON):$(MIDFILE).y
-		$(BISON) -vdty $<
+$(MID_BISON_C):$(MIDFILE_BISON).y
+		$(BISON) -vdty $< -o $@
  
 clean:#make clean执行非第一个target子程序的clean target
 	  @$(ECHO) cleaning......
