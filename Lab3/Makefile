@@ -6,12 +6,14 @@ BISON = bison
 MID = lex.yy.c y.tab.c y.tab.h y.output
 MID_LEX = lex.yy.c
 MID_BISON = y.tab.c
-MIDFILE = calc
+MIDFILE = lrlex
 
 # SUBDIR := $(shell pwd)
 O_PATH := ./obj
 OBJECTS = $(O_PATH)/y.tab.o
 OBJECTS += $(O_PATH)/lex.yy.o
+OBJECTS += $(O_PATH)/ast.o
+OBJECTS += $(O_PATH)/main.o
 # OBJECTS += $(O_PATH)/rightAns.o
 
 TARGET = ./testDemo

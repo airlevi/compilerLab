@@ -3,3 +3,6 @@
 lex.yy.*
 y.*
 testDemo
+lrparser.c
+lrparser.tab.h
+lrparser.output
