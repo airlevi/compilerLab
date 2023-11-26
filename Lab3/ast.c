@@ -23,41 +23,44 @@ void showAst(char* sym, past node, int nest,bool use_blank){
     if(use_blank) {
 		for (int i = 0; i < nest; i++)
 			printf("    ");
-	}else{
+	}else if(node->nodeType != TRANSLATION_UNIT){
 		printf("%d", nest);
 	}
 	if(node->nodeType == TRANSLATION_UNIT){
-		printf("%s-%s\n", sym, node->snodeType);
-		showTranstion(node, nest + 1,use_blank);
+		// printf("%s\n", node->snodeType);
+		// showTranstion(node, nest + 1,use_blank);
+		showTranstion(node, nest,use_blank);
 		return;
 	} else if(node->nodeType == INTEGER_LITERAL){
-		printf("%s-%s  %d\n", sym, node->snodeType, node->ivalue);
+		printf("%s  %d\n", node->snodeType, node->ivalue);
 	} else if(node->nodeType == FLOATING_LITERAL){
-		printf("%s-%s  %f\n", sym, node->snodeType, node->fvalue);
+		printf("%s  %f\n", node->snodeType, node->fvalue);
 	} else if(node->nodeType == IF_STMT){
-		printf("%s-%s  %s\n", sym, node->snodeType, node->svalue);
+		printf("%s  %s\n", node->snodeType, node->svalue);
 		showAst("|", node->if_cond, nest+1,use_blank);
 	} else if(node->nodeType == FUNCTION_DECL){
-		printf("%s-%s  %s '%s'\n", sym, node->snodeType, node->svalue, node->stype);
+		// printf("%s  %s '%s'\n", node->snodeType, node->svalue, node->stype);
+		printf("%s  '%s'\n", node->snodeType, node->svalue);
 	} else if(node->nodeType == PARM_DECL){
 		showParaDecl(node);
 		return;
 	} else if(node->nodeType == COMPOUND_STMT){
-		printf("%s-%s\n", sym, node->snodeType);
+		printf("%s\n", node->snodeType);
 		node = node->right;
 		showCompoundStmt(node, nest + 1, use_blank);
 		return;
 	} else if(node->nodeType == VAR_DECL){
-		printf("%s-%s  %s '%s'\n", sym, node->snodeType, node->svalue, node->stype);
+		// printf("%s  %s '%s'\n", node->snodeType, node->svalue, node->stype);
+		printf("%s  '%s'\n", node->snodeType, node->svalue);
 	} else if(node->nodeType == CALL_EXPR){
-		printf("%s-%s  %s\n", sym, node->snodeType, node->svalue);
+		printf("%s  %s\n", node->snodeType, node->svalue);
 		node = node->left;
 		showCallExp(node, nest + 1,use_blank);
 		return;
 	} else if(node->svalue != NULL){
-		printf("%s-%s  '%s'\n", sym, node->snodeType, node->svalue);
+		printf("%s  '%s'\n", node->snodeType, node->svalue);
 	} else{
-		printf("%s-%s\n", sym, node->snodeType);
+		printf("%s\n", node->snodeType);
 	}
 	showAst("|", node->left, nest+1,use_blank);
 	showAst("`", node->right, nest+1,use_blank);
