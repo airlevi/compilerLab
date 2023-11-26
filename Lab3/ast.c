@@ -22,7 +22,7 @@ void showAst(char* sym, past node, int nest,bool use_blank){
 	int i = 0;
     if(use_blank) {
 		for (int i = 0; i < nest; i++)
-			printf("    ");
+			printf("hh    ");
 	}else if(node->nodeType != TRANSLATION_UNIT){
 		printf("%d", nest);
 	}
@@ -36,34 +36,42 @@ void showAst(char* sym, past node, int nest,bool use_blank){
 	} else if(node->nodeType == FLOATING_LITERAL){
 		printf("%s  %f\n", node->snodeType, node->fvalue);
 	} else if(node->nodeType == IF_STMT){
-		printf("%s  %s\n", node->snodeType, node->svalue);
+		// printf("%s  %s\n", node->snodeType, node->svalue);
+		printf("%s\n", node->snodeType);
 		showAst("|", node->if_cond, nest+1,use_blank);
 	} else if(node->nodeType == FUNCTION_DECL){
 		// printf("%s  %s '%s'\n", node->snodeType, node->svalue, node->stype);
 		printf("%s  '%s'\n", node->snodeType, node->svalue);
 	} else if(node->nodeType == PARM_DECL){
-		showParaDecl(node);
+		showParaDecl(node,nest);
 		return;
 	} else if(node->nodeType == COMPOUND_STMT){
+		// if(node->right->nodeType==COMPOUND_STMT){}
 		printf("%s\n", node->snodeType);
 		node = node->right;
 		showCompoundStmt(node, nest + 1, use_blank);
 		return;
 	} else if(node->nodeType == VAR_DECL){
 		// printf("%s  %s '%s'\n", node->snodeType, node->svalue, node->stype);
-		printf("%s  '%s'\n", node->snodeType, node->svalue);
+		printf("%s: '%s'\n", node->snodeType, node->svalue);
 	} else if(node->nodeType == CALL_EXPR){
-		printf("%s  %s\n", node->snodeType, node->svalue);
-		node = node->left;
-		showCallExp(node, nest + 1,use_blank);
-		return;
-	} else if(node->svalue != NULL){
+		// printf("%s:  %s\n", node->snodeType, node->svalue);
+		printf("%s\n", node->snodeType);
+		printf("%dDECL_REF_EXPR:  '%s'\n",nest+1, node->svalue);
+		// node = node->left;
+		// showCallExp(node, nest + 1,use_blank);
+		// return;
+	}else if(node->nodeType == DECL_REF_EXPR){
+		printf("%s:  '%s'\n", node->snodeType, node->svalue);
+	}
+	else if(node->svalue != NULL){
 		printf("%s  '%s'\n", node->snodeType, node->svalue);
 	} else{
 		printf("%s\n", node->snodeType);
 	}
 	showAst("|", node->left, nest+1,use_blank);
 	showAst("`", node->right, nest+1,use_blank);
+	showAst("",node->next, nest, use_blank);
 }
 
 void showTranstion(past node, int nest,bool use_blank){ //函数块
@@ -92,6 +100,10 @@ void showCompoundStmt(past node, int nest,bool use_blank){ //复合语句遍历
 	if(node == NULL){
 		return;
 	}
+	if(node->nodeType != COMPOUND_STMT){
+		showAst("|", node, nest,use_blank);
+		return;
+	}
 	while(node->right != NULL){
 		showAst("|", node->left, nest,use_blank);
 		node = node->right;
@@ -99,7 +111,7 @@ void showCompoundStmt(past node, int nest,bool use_blank){ //复合语句遍历
 	showAst("'", node->left, nest,use_blank);
 }
 
-void showParaDecl(past node){ //函数参数，非递归中序遍历
+void showParaDecl(past node,int nest){ //函数参数，非递归中序遍历
 	if(node == NULL){
 		return;
 	}
@@ -113,10 +125,12 @@ void showParaDecl(past node){ //函数参数，非递归中序遍历
         }else if(top != 0){   
 			node = stack[--top];
 			if(sym == 1){
-				printf("|-%s  used %s '%s'\n", node->snodeType, node->svalue, node->stype);
+				// printf("|-%s  used %s '%s'\n", node->snodeType, node->svalue, node->stype);
+				printf("%s  '%s'\n", node->snodeType, node->svalue);
 				sym--;
 			} else {
-				printf("    |-%s  used %s '%s'\n", node->snodeType, node->svalue, node->stype);
+				// printf("    |-%s  used %s '%s'\n", node->snodeType, node->svalue, node->stype);
+				printf("%d%s  '%s'\n",nest, node->snodeType, node->svalue);
 			}
             node = node->right;
         }
@@ -245,6 +259,17 @@ past newBinaryOper(char* soper, int oper, past left, past right){  //oper为运�
 	return node;
 }
 
+past newUnaryOper(char* soper, int oper, past left, past right){  //oper为运算符，left，right为操作数表达式
+	past node = newAstNode();
+	node->nodeType = UNARY_OPERATOR;
+	node->snodeType = "UNARY_OPERATOR";
+	node->ivalue = oper;
+	node->svalue = soper;
+	node->left = left;
+	node->right = right;
+	return node;
+}
+
 
 past newCallExp(char* stype, int type, char* name, past left, past right){  //函数调用表达式，left为实参，right为NULL，stype,type默认为NULL跟0，name为函数名
 	past node = newAstNode();
@@ -335,5 +360,13 @@ past newReturnStmt(past left, past right){   //left为返回值结点，right默
 past newType(int oper){
 	past node = newAstNode();
 	node->ivalue = oper;
+	return node;
+}
+
+past newAstAny(past left, past right, char* snodeType){
+	past node = newAstNode();
+	node->snodeType = snodeType;
+	node->left = left;
+	node->right = right;
 	return node;
 }

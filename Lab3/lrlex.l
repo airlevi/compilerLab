@@ -10,13 +10,15 @@ int type;
 DELIM          [\t ]
 WS               {DELIM}+
 DIGIT            [0-9]
-LETTER 	     [A-Za-z]	
+LETTER 	     [A-Za-z]
+NUM_INT_HEX		 (0[xX][a-fA-F0-9]+)	
      
 %%
 
 (\/\/.*\n)|(\/\*.*\*\/)							{/* noaction */}
 {WS}   											{/* noaction */}
 \n 												{/* noaction */}
+{NUM_INT_HEX}									{yylval.int_value = (int)strtol(yytext, NULL, 16); return num_INT;}
 {DIGIT}+	     								{yylval.int_value = atoi(yytext); return num_INT;}
 {DIGIT}+"."{DIGIT}+								{yylval.float_value = (float)atof(yytext); return num_FLOAT;}
 int												{type = Y_INT;return Y_INT;}

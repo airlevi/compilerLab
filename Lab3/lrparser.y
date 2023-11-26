@@ -26,7 +26,7 @@ extern int type;
 %type  <pAst>	program Exp AddExp MulExp UnaryExp CallParams PrimaryExp LVal ArraySubscripts
 %type  <pAst>	Block BlockItem BlockItems Stmt RelExp EqExp LAndExp LOrExp  
 %type  <pAst>	FuncDef FuncParam FuncParams Type 
-%type  <pAst>  CompUnit Decl ConstDecl ConstDefs ConstDef ConstExps ConstInitVal ConstInitVals 
+%type  <pAst>  CompUnit Decl ConstDecl ConstDefs ConstDef ConstExps ConstInitVal ConstInitVals GlobalDecl GlobalConstDecl GlobalVarDecl
 %type  <pAst>  VarDecl VarDecls VarDef InitVal InitVals ConstExp
 
 
@@ -35,13 +35,25 @@ extern int type;
 program: CompUnit {showAst("|", $1, 0,false); }
           ;
 
-CompUnit: Decl CompUnit {past l = newCompUnit($1, NULL); l->right = $2; $$ = l;}
+CompUnit: GlobalDecl CompUnit {past l = newCompUnit($1, NULL); l->right = $2; $$ = l;}
          | FuncDef CompUnit {past l = newCompUnit($1, NULL); l->right = $2; $$ = l;}
-         | Decl  {$$ = newCompUnit($1, NULL);}
+         | GlobalDecl  {$$ = newCompUnit($1, NULL);}
          | FuncDef {$$ = newCompUnit($1, NULL);}
          ;
 
-Decl: ConstDecl
+GlobalDecl: GlobalConstDecl
+          | GlobalVarDecl
+          ;
+
+GlobalConstDecl: Y_CONST Type ConstDef Y_SEMICOLON {$$ = $3; }
+               | Y_CONST Type ConstDefs Y_SEMICOLON {$$ = $3; }
+               ;
+
+GlobalVarDecl:  Type VarDef Y_SEMICOLON {$$ = $2; }
+               |Type VarDef VarDecls Y_SEMICOLON {$2->next = $3;$$ = $2; }
+               ;
+
+Decl: GlobalConstDecl
      | VarDecl
      ;
 
@@ -49,8 +61,8 @@ ConstDecl: Y_CONST Type ConstDef Y_SEMICOLON {$$ = newDeclStmt(NULL, $3);}
           | Y_CONST Type ConstDefs Y_SEMICOLON {$$ = newDeclStmt(NULL, $3);}
           ;
 
-ConstDefs: ConstDef Y_COMMA ConstDef {$$ = newDeclStmt($1, $3);}
-          | ConstDefs Y_COMMA ConstDef {$$ = newDeclStmt($1, $3);}
+ConstDefs: ConstDef Y_COMMA ConstDef {$1->next = $3,$$ = $1;}
+          | ConstDefs Y_COMMA ConstDef {$3->next = $1;$$ = $3;}
           ;
 
 ConstDef: Y_ID Y_ASSIGN ConstInitVal {$$ = newVarDecl(get_conststype(type), type, 1, $1, NULL, $3);}
@@ -79,7 +91,7 @@ VarDecl: Type VarDef Y_SEMICOLON {$$ = newDeclStmt(NULL, $2);}
         ;
  
 VarDecls: Y_COMMA VarDef {$$ = $2;}
-         | Y_COMMA VarDef VarDecls {$$ = newDeclStmt($2, $3);}
+         |Y_COMMA VarDef VarDecls {$2->next = $3;$$ = $2;}
          ;
 
 VarDef: Y_ID {$$ = newVarDecl(get_stype(type), type, 0, $1, NULL, NULL);}
@@ -123,15 +135,25 @@ Stmt: LVal Y_ASSIGN Exp Y_SEMICOLON {$$ = newBinaryOper("=", Y_ASSIGN, $1, $3);}
      | Exp Y_SEMICOLON {$$ = $1;}
      | Block 
      | Y_WHILE Y_LPAR LOrExp Y_RPAR Stmt {$$ = newWhileStmt($3, newCompoundStmt(NULL,$5));}
-     | Y_IF Y_LPAR LOrExp Y_RPAR Stmt {$$ = newIfStmt($3, newCompoundStmt(NULL,$5), NULL);}
-     | Y_IF Y_LPAR LOrExp Y_RPAR Stmt Y_ELSE Stmt {$$ = newIfStmt($3, newCompoundStmt(NULL,$5), newCompoundStmt(NULL,$7));}
+     | Y_IF Y_LPAR LOrExp Y_RPAR Stmt {$$ = newIfStmt($3, $5, NULL);}
+     | Y_IF Y_LPAR LOrExp Y_RPAR Stmt Y_ELSE Exp Y_SEMICOLON {$$ = newIfStmt($3,$5, $7);}
+     | Y_IF Y_LPAR LOrExp Y_RPAR Stmt Y_ELSE Block {$$ = newIfStmt($3,$5, $7);}
+     | Y_IF Y_LPAR LOrExp Y_RPAR Stmt Y_ELSE Y_BREAK Y_SEMICOLON {$$ = newIfStmt($3,$5, newBreakStmt());}
+     | Y_IF Y_LPAR LOrExp Y_RPAR Stmt Y_ELSE Y_CONTINUE Y_SEMICOLON {$$ = newIfStmt($3,$5,newContinueStmt());}
+     | Y_IF Y_LPAR LOrExp Y_RPAR Stmt Y_ELSE Y_RETURN Exp Y_SEMICOLON {$$ = newIfStmt($3,$5,newReturnStmt($8, NULL));}
+     | Y_IF Y_LPAR LOrExp Y_RPAR Stmt Y_ELSE Y_RETURN Y_SEMICOLON {$$ = newIfStmt($3,$5,newReturnStmt(NULL, NULL));}
+     | Y_IF Y_LPAR LOrExp Y_RPAR Stmt Y_ELSE LVal Y_ASSIGN Exp Y_SEMICOLON {$$ = newIfStmt($3, $5,newBinaryOper("=", Y_ASSIGN, $7, $9));}
+     | Y_IF Y_LPAR LOrExp Y_RPAR Stmt Y_ELSE Y_IF Y_LPAR LOrExp Y_RPAR Stmt {$$ = newIfStmt($3,$5,newIfStmt($9,$11,NULL));}
+
+     | Y_IF Y_LPAR LOrExp Y_RPAR Stmt Y_ELSE Y_IF Y_LPAR LOrExp Y_RPAR Stmt Y_ELSE Stmt {$$ = newIfStmt($3,$5,newIfStmt($9,$11,$13));}
+     
      | Y_BREAK Y_SEMICOLON {$$ = newBreakStmt();}
      | Y_CONTINUE Y_SEMICOLON {$$ = newContinueStmt();}
      | Y_RETURN Exp Y_SEMICOLON {$$ = newReturnStmt($2, NULL);}
      | Y_RETURN Y_SEMICOLON {$$ = newReturnStmt(NULL, NULL);}
      ;
 
-Block: Y_LBRACKET BlockItems Y_RBRACKET {$$ = $2;}
+Block: Y_LBRACKET BlockItems Y_RBRACKET {$$ = newCompoundStmt(NULL,$2);}
       | Y_LBRACKET Y_RBRACKET {$$ = NULL;}
       ;
 
@@ -181,16 +203,16 @@ MulExp: UnaryExp
 UnaryExp: PrimaryExp
      | Y_ID Y_LPAR Y_RPAR {$$ = newCallExp(NULL, 0, $1, NULL, NULL);}
      | Y_ID Y_LPAR CallParams Y_RPAR {$$ = newCallExp(NULL, 0, $1, $3, NULL);}
-     | Y_ADD UnaryExp {$$ = newBinaryOper("+", Y_ADD, NULL, $2);}
-     | Y_SUB UnaryExp {$$ = newBinaryOper("-", Y_SUB, NULL, $2);}
-     | Y_NOT UnaryExp {$$ = newBinaryOper("!", Y_NOT, NULL, $2);}
+     | Y_ADD UnaryExp {$$ = newUnaryOper("+", Y_ADD, NULL, $2);}
+     | Y_SUB UnaryExp {$$ = newUnaryOper("-", Y_SUB, NULL, $2);}
+     | Y_NOT UnaryExp {$$ = newUnaryOper("!", Y_NOT, NULL, $2);}
      ;
 
 CallParams: Exp
-     | Exp Y_COMMA CallParams {$$ = newBinaryOper("-", Y_SUB, $1, $3);}
+     | Exp Y_COMMA CallParams {$1->next = $3;$$ = $1 ;}
      ;
 
-PrimaryExp: Y_LPAR Exp Y_RPAR {$$ = $2;}
+PrimaryExp: Y_LPAR Exp Y_RPAR {past node = newAstAny($2,NULL,"PAREN_EXPR");$$ = node;}
      | LVal 
      | num_INT {$$ = newIntVal($1);}
      | num_FLOAT {$$ = newFloatVal($1);}

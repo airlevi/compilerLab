@@ -245,7 +245,7 @@ struct _ast{
 past newAstNode();
 //显示ast
 void showAst(char* sym, past node, int nest,bool use_blank);
-void showParaDecl(past node);
+void showParaDecl(past node,int nest);
 void showCompoundStmt(past node, int nest,bool use_blank);
 void showCallExp(past node, int nest,bool use_blank);
 void showTranstion(past node, int nest,bool use_blank);
@@ -272,3 +272,5 @@ past newContinueStmt();
 past newBreakStmt();
 past newReturnStmt(past left, past right);
 past newType(int oper);
+past newUnaryOper(char* soper, int oper, past left, past right);
+past newAstAny(past left, past right, char* snodeType);
