@@ -3,7 +3,7 @@
 #include "ast.h"
 #include "lrparser.tab.h"
 int type;
-
+int array_size;
 %}
 
 /* Regular definition */ 

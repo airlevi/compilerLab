@@ -66,7 +66,12 @@ void showAst(char* sym, past node, int nest,bool use_blank){
 	}
 	else if(node->svalue != NULL){
 		printf("%s  '%s'\n", node->snodeType, node->svalue);
-	} else{
+	} 
+	else if (node->nodeType== INIT_LIST_EXPR)
+	{
+		printf("%s\n",node->snodeType);	
+	}
+	else{
 		printf("%s\n", node->snodeType);
 	}
 	showAst("|", node->left, nest+1,use_blank);
@@ -363,10 +368,11 @@ past newType(int oper){
 	return node;
 }
 
-past newAstAny(past left, past right, char* snodeType){
+past newAstAny(past left, past right, char* snodeType ,node_type nodeType){
 	past node = newAstNode();
 	node->snodeType = snodeType;
 	node->left = left;
 	node->right = right;
+	node->nodeType = nodeType;
 	return node;
 }

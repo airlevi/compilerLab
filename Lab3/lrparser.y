@@ -5,6 +5,8 @@
 int yylex(void);
 void yyerror(char *);
 extern int type;
+extern int array_size;
+int count_size = 0;
 //FuncParam还需要修改
 //需要修改VarDef、ConstExps、ConstDef、ConstInitVal、InitVal、ConstInitVals、InitVals
 
@@ -66,24 +68,24 @@ ConstDefs: ConstDef Y_COMMA ConstDef {$1->next = $3,$$ = $1;}
           ;
 
 ConstDef: Y_ID Y_ASSIGN ConstInitVal {$$ = newVarDecl(get_conststype(type), type, 1, $1, NULL, $3);}
-         | Y_ID ConstExps Y_ASSIGN ConstInitVal {$$ = newVarDecl(get_conststype(type), type, 1, $1, NULL, $4); }
+         | Y_ID ConstExps Y_ASSIGN ConstInitVal {$$ = newVarDecl(get_conststype(type), type, 1, $1, NULL, newAstAny($4,NULL,"INIT_LIST_EXPR",INIT_LIST_EXPR)); }
          ; 
 
-ConstExps: Y_LSQUARE ConstExp Y_RSQUARE {$$ = $2;}
-         | Y_LSQUARE ConstExp Y_RSQUARE ConstExps {$$ = $2; }
+ConstExps: Y_LSQUARE ConstExp Y_RSQUARE {$$ = $2;array_size = $2->ivalue;}
+         | Y_LSQUARE ConstExp Y_RSQUARE ConstExps {array_size = $4->ivalue;$2->next = $4,$$ = $2; }
          ;
 
 ConstInitVal: ConstExp
              | Y_LBRACKET Y_RBRACKET {$$ = NULL; }
-             | Y_LBRACKET ConstInitVal Y_RBRACKET {$$ = $2;}
-             | Y_LBRACKET ConstInitVal ConstInitVals Y_RBRACKET {$$ = $2; }
+             | Y_LBRACKET ConstInitVal Y_RBRACKET {past node = $2;node = newAstAny(node,NULL,"INIT_LIST_EXPR",INIT_LIST_EXPR);$$ = node;count_size =0;}
+             | Y_LBRACKET ConstInitVal ConstInitVals Y_RBRACKET {count_size++;past node = $2;node->next = $3;$$ = node;count_size =0; }
              ;
           
 ConstExp: AddExp
           ;
 
-ConstInitVals: Y_COMMA ConstInitVal {$$ = $2;}
-              | Y_COMMA ConstInitVal ConstInitVals {$$ = $2; }
+ConstInitVals: Y_COMMA ConstInitVal {count_size++;past node = $2;$$ = node; }
+              | Y_COMMA ConstInitVal ConstInitVals {count_size++;past node = $2;node->next = $3;$$ = node; }
               ;
 
 VarDecl: Type VarDef Y_SEMICOLON {$$ = newDeclStmt(NULL, $2);} 
@@ -97,17 +99,17 @@ VarDecls: Y_COMMA VarDef {$$ = $2;}
 VarDef: Y_ID {$$ = newVarDecl(get_stype(type), type, 0, $1, NULL, NULL);}
        | Y_ID Y_ASSIGN InitVal {$$ = newVarDecl(get_stype(type), type, 0, $1, NULL, $3);}
        | Y_ID ConstExps {$$ = newVarDecl(get_stype(type), type, 0, $1, NULL, NULL); }
-       | Y_ID ConstExps Y_ASSIGN InitVal {$$ = newVarDecl(get_stype(type), type, 0, $1, NULL, $4); }
+       | Y_ID ConstExps Y_ASSIGN InitVal {$$ = newVarDecl(get_stype(type), type, 0, $1, NULL, newAstAny($4,NULL,"INIT_LIST_EXPR",INIT_LIST_EXPR)); }
        ; 
 
 InitVal: Exp
         | Y_LBRACKET Y_RBRACKET {$$ = NULL;}
-        | Y_LBRACKET InitVal Y_RBRACKET {$$ = $2;}
-        | Y_LBRACKET InitVal InitVals Y_RBRACKET {$$ = $2; }
+        | Y_LBRACKET InitVal Y_RBRACKET {past node = $2;node = newAstAny(node,NULL,"INIT_LIST_EXPR",INIT_LIST_EXPR);$$ = node;count_size =0;}
+        | Y_LBRACKET InitVal InitVals Y_RBRACKET {count_size++;past node = $2;node->next = $3;if(node->nodeType!=INIT_LIST_EXPR){node = newAstAny(node,NULL,"INIT_LIST_EXPR",INIT_LIST_EXPR);node->next = $3->next;$3->next=NULL;}$$ = node;count_size =0; }
         ;
 
-InitVals: Y_COMMA InitVal {$$ = $2; }
-         | Y_COMMA InitVal InitVals {$$ = $2; }
+InitVals: Y_COMMA InitVal {count_size++;past node = $2;$$ = node; }
+         | Y_COMMA InitVal InitVals {count_size++;past node = $2;node->next = $3;if(node->nodeType==INIT_LIST_EXPR){count_size = 0;}if(count_size>=array_size && node->nodeType!=INIT_LIST_EXPR){node = newAstAny(node,NULL,"INIT_LIST_EXPR",INIT_LIST_EXPR);node->next = $3->next;$3->next = NULL;count_size=0;}$$ = node; }
          ;
 
 
@@ -212,18 +214,18 @@ CallParams: Exp
      | Exp Y_COMMA CallParams {$1->next = $3;$$ = $1 ;}
      ;
 
-PrimaryExp: Y_LPAR Exp Y_RPAR {past node = newAstAny($2,NULL,"PAREN_EXPR");$$ = node;}
+PrimaryExp: Y_LPAR Exp Y_RPAR {past node = newAstAny($2,NULL,"PAREN_EXPR",INIT_LIST_EXPR);$$ = node;}
      | LVal 
      | num_INT {$$ = newIntVal($1);}
      | num_FLOAT {$$ = newFloatVal($1);}
      ;
 
 LVal: Y_ID {$$ = newDeclRefExp($1, NULL, NULL);}
-    | Y_ID ArraySubscripts {$$ = newDeclRefExp($1, NULL, NULL);}
+    | Y_ID ArraySubscripts {past node = newDeclRefExp($1,NULL,NULL);past node2 = $2;while(node2->left!=NULL) node2 = node2->left;node2->left = node;$$ = $2;}
     ;
 
-ArraySubscripts: Y_LSQUARE Exp Y_RSQUARE {$$ = $2;}
-               | Y_LSQUARE Exp Y_RSQUARE ArraySubscripts {$$ = newArraySubscriptsExp($2, $4);}
+ArraySubscripts: Y_LSQUARE Exp Y_RSQUARE {$$ = newArraySubscriptsExp(NULL,$2);}
+               |ArraySubscripts Y_LSQUARE Exp Y_RSQUARE  {$$ = newArraySubscriptsExp($1, $3);}
                ;
 
 %%

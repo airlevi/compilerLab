@@ -273,4 +273,4 @@ past newBreakStmt();
 past newReturnStmt(past left, past right);
 past newType(int oper);
 past newUnaryOper(char* soper, int oper, past left, past right);
-past newAstAny(past left, past right, char* snodeType);
+past newAstAny(past left, past right, char* snodeType, node_type nodeType);
